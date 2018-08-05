@@ -1,16 +1,29 @@
 import React from 'react';
 import { StyleSheet, Text, View, StatusBar, Dimensions, TextInput, Platform, ScrollView } from 'react-native';
 import ToDo from "./ToDo"
+import { AppLoading } from "expo"
+import uuidv1 from "uuid/v1"
 
 const { height, width } = Dimensions.get("window");
 
 export default class App extends React.Component {
   state = {
-    newToDo: ""
+    newTodo: "",
+    loadedTodos: false,
+    todos: {}
   };
 
+  componentDidMount = () => {
+    this._loadTodos();
+  }
+
   render() {
-    const { newToDo } = this.state;
+    const { newTodo, loadedTodos, todos } = this.state;
+
+    if (!loadedTodos) {
+      return <AppLoading />
+    }
+
     return (
       <View style={styles.container}>
         <StatusBar barStyle="light-content" />
@@ -19,31 +32,76 @@ export default class App extends React.Component {
           <TextInput
             style={styles.input}
             placeholder={"New Todo"}
-            value={newToDo}
+            value={newTodo}
             onChangeText={this._controlNewTodo}
             placeholderTextColor={"#999"}
             returnKeyType={"done"}
             autoCorrect={false}
+            onSubmitEditing={this._addTodo}
           />
           <ScrollView contentContainerStyle={styles.todos}>
-            <ToDo />
+            {Object.values(todos).map(toDo => <ToDo key={toDo.id}{...toDo} deleteTodo={this._deleteTodo} />)}
           </ScrollView>
         </View>
       </View>
     );
   }
-}
 
-_controlNewTodo = text => {
-  this.setState({
-    newTodo: text
-  })
+  _controlNewTodo = text => {
+    this.setState({
+      newTodo: text
+    });
+  };
+
+  _loadTodos = () => {
+    this.setState({
+      loadedTodos: true
+    });
+  };
+
+  _addTodo = () => {
+    const { newTodo } = this.state;
+    if (newTodo !== "") {
+      this.setState(prevState => {
+        const ID = uuidv1();
+        const newTodoObject = {
+          [ID]: {
+            id: ID,
+            isCompledted: false,
+            text: newTodo,
+            createdAt: Date.now()
+          }
+        }
+        const newState = {
+          ...prevState,
+          newTodo: "",
+          todos: {
+            ...prevState.todos,
+            ...newTodoObject
+          }
+        };
+        return { ...newState };
+      });
+    }
+  };
+
+  _deleteTodo = (id) => {
+    this.setState(prevState => {
+      const todos = prevState.todos;
+      delete todos[id];
+      const newState = {
+        ...prevState,
+        ...todos
+      };
+      return {...newState};
+    })
+  }
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F3232B',
+    backgroundColor: 'red',
     alignItems: 'center',
     justifyContent: 'center',
   },

@@ -41,6 +41,7 @@ export default class App extends React.Component {
             returnKeyType={"done"}
             autoCorrect={false}
             onSubmitEditing={this._addTodo}
+            underlineColorAndroid={"transparent"}
           />
           <ScrollView contentContainerStyle={styles.todos}>
             {Object.values(todos)
@@ -74,8 +75,8 @@ export default class App extends React.Component {
       console.log(todos);
       this.setState({
         loadedTodos: true,
-        todos: parsedTodos
-      
+        todos: parsedTodos || {}
+
       });
     } catch (err) {
       console.log(err);

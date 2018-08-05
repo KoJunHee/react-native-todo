@@ -43,7 +43,9 @@ export default class App extends React.Component {
             onSubmitEditing={this._addTodo}
           />
           <ScrollView contentContainerStyle={styles.todos}>
-            {Object.values(todos).map(toDo => (
+            {Object.values(todos)
+            .reverse()
+            .map(toDo => (
               <ToDo
                 key={toDo.id}
                 deleteTodo={this._deleteTodo}

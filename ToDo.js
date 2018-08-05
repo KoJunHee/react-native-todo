@@ -97,7 +97,6 @@ export default class ToDo extends Component {
     _toggleComplete = event => {
         event.stopPropagation();
         const { isCompleted, uncompleteTodo, completeTodo, id } = this.props;
-        console.log(isCompleted);
         if (isCompleted) {
             uncompleteTodo(id);
         } else {
@@ -127,10 +126,6 @@ export default class ToDo extends Component {
             toDoValue: text
         })
     }
-
-
-
-
 }
 
 const styles = StyleSheet.create({

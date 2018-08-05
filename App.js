@@ -30,7 +30,7 @@ export default class App extends React.Component {
     return (
       <View style={styles.container}>
         <StatusBar barStyle="light-content" />
-        <Text style={styles.title}>TODO LIST</Text>
+        <Text style={styles.title}>Junhee TODO LIST</Text>
         <View style={styles.card}>
           <TextInput
             style={styles.input}
@@ -45,17 +45,17 @@ export default class App extends React.Component {
           />
           <ScrollView contentContainerStyle={styles.todos}>
             {Object.values(todos)
-            .reverse()
-            .map(toDo => (
-              <ToDo
-                key={toDo.id}
-                deleteTodo={this._deleteTodo}
-                uncompleteTodo={this._uncompleteTodo}
-                completeTodo={this._completeTodo}
-                updateTodo={this._updateTodo}
-                {...toDo}
-              />
-            ))}
+              .reverse()
+              .map(toDo => (
+                <ToDo
+                  key={toDo.id}
+                  deleteTodo={this._deleteTodo}
+                  uncompleteTodo={this._uncompleteTodo}
+                  completeTodo={this._completeTodo}
+                  updateTodo={this._updateTodo}
+                  {...toDo}
+                />
+              ))}
           </ScrollView>
         </View>
       </View>
@@ -72,7 +72,6 @@ export default class App extends React.Component {
     try {
       const todos = await AsyncStorage.getItem("todos");
       const parsedTodos = JSON.parse(todos);
-      console.log(todos);
       this.setState({
         loadedTodos: true,
         todos: parsedTodos || {}
@@ -176,20 +175,14 @@ export default class App extends React.Component {
   };
 
   _saveTodos = newTodos => {
-    console.log(JSON.stringify(newTodos));
     const saveTodos = AsyncStorage.setItem("todos", JSON.stringify(newTodos));
   };
-
-
-
 }
-
-
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'red',
+    backgroundColor: '#2E9AFE',
     alignItems: 'center',
     justifyContent: 'center',
   },

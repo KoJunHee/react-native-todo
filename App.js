@@ -1,5 +1,8 @@
 import React from 'react';
-import { StyleSheet, Text, View, StatusBar, Dimensions, TextInput, Platform, ScrollView } from 'react-native';
+import {
+  StyleSheet, Text, View, StatusBar,
+  Dimensions, TextInput, Platform, ScrollView, AsyncStorage
+} from 'react-native';
 import ToDo from "./ToDo"
 import { AppLoading } from "expo"
 import uuidv1 from "uuid/v1"
@@ -40,7 +43,16 @@ export default class App extends React.Component {
             onSubmitEditing={this._addTodo}
           />
           <ScrollView contentContainerStyle={styles.todos}>
-            {Object.values(todos).map(toDo => <ToDo key={toDo.id}{...toDo} deleteTodo={this._deleteTodo} />)}
+            {Object.values(todos).map(toDo => (
+              <ToDo
+                key={toDo.id}
+                deleteTodo={this._deleteTodo}
+                uncompleteTodo={this._uncompleteTodo}
+                completeTodo={this._completeTodo}
+                updateTodo={this._updateTodo}
+                {...toDo}
+              />
+            ))}
           </ScrollView>
         </View>
       </View>
@@ -53,10 +65,20 @@ export default class App extends React.Component {
     });
   };
 
-  _loadTodos = () => {
-    this.setState({
-      loadedTodos: true
-    });
+  _loadTodos = async () => {
+    try {
+      const todos = await AsyncStorage.getItem("todos");
+      const parsedTodos = JSON.parse(todos);
+      console.log(todos);
+      this.setState({
+        loadedTodos: true,
+        todos: parsedTodos
+      
+      });
+    } catch (err) {
+      console.log(err);
+    }
+
   };
 
   _addTodo = () => {
@@ -67,7 +89,7 @@ export default class App extends React.Component {
         const newTodoObject = {
           [ID]: {
             id: ID,
-            isCompledted: false,
+            isCompleted: false,
             text: newTodo,
             createdAt: Date.now()
           }
@@ -80,6 +102,7 @@ export default class App extends React.Component {
             ...newTodoObject
           }
         };
+        this._saveTodos(newState.todos);
         return { ...newState };
       });
     }
@@ -93,10 +116,72 @@ export default class App extends React.Component {
         ...prevState,
         ...todos
       };
-      return {...newState};
+      this._saveTodos(newState.todos);
+      return { ...newState };
     })
-  }
+  };
+
+  _uncompleteTodo = (id) => {
+    this.setState(prevState => {
+      const newState = {
+        ...prevState,
+        todos: {
+          ...prevState.todos,
+          [id]: {
+            ...prevState.todos[id],
+            isCompleted: false
+          }
+        }
+      };
+      this._saveTodos(newState.todos);
+      return { ...newState };
+    });
+  };
+
+  _completeTodo = (id) => {
+    this.setState(prevState => {
+      const newState = {
+        ...prevState,
+        todos: {
+          ...prevState.todos,
+          [id]: {
+            ...prevState.todos[id],
+            isCompleted: true
+          }
+        }
+      };
+      this._saveTodos(newState.todos);
+      return { ...newState };
+    });
+  };
+
+  _updateTodo = (id, text) => {
+    this.setState(prevState => {
+      const newState = {
+        ...prevState,
+        todos: {
+          ...prevState.todos,
+          [id]: {
+            ...prevState.todos[id],
+            text: text
+          }
+        }
+      };
+      this._saveTodos(newState.todos);
+      return { ...newState };
+    });
+  };
+
+  _saveTodos = newTodos => {
+    console.log(JSON.stringify(newTodos));
+    const saveTodos = AsyncStorage.setItem("todos", JSON.stringify(newTodos));
+  };
+
+
+
 }
+
+
 
 const styles = StyleSheet.create({
   container: {

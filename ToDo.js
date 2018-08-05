@@ -4,6 +4,7 @@ import PropTypes from "prop-types"
 
 const { width, height } = Dimensions.get("window")
 export default class ToDo extends Component {
+
     constructor(props) {
         super(props);
         this.state = {
@@ -16,16 +17,20 @@ export default class ToDo extends Component {
         text: PropTypes.string.isRequired,
         isCompleted: PropTypes.bool.isRequired,
         deleteTodo: PropTypes.func.isRequired,
-        id: PropTypes.string.isRequired
+        id: PropTypes.string.isRequired,
+        uncompleteTodo: PropTypes.func.isRequired,
+        completeTodo: PropTypes.func.isRequired,
+        updateTodo: PropTypes.func.isRequired
     }
+
     state = {
         isEditing: false,
         toDoValue: ""
     }
 
     render() {
-        const { isCompleted, isEditing, toDoValue } = this.state;
-        const { text, id, deleteTodo } = this.props;
+        const { isEditing, toDoValue } = this.state;
+        const { text, id, deleteTodo, isCompleted } = this.props;
         return (
             <View style={styles.container}>
                 <View style={styles.column}>
@@ -73,7 +78,7 @@ export default class ToDo extends Component {
                                     <Text style={styles.actionText}>✏️</Text>
                                 </View>
                             </TouchableOpacity>
-                            <TouchableOpacity onPressOut= {() => deleteTodo(id) } >
+                            <TouchableOpacity onPressOut={() => deleteTodo(id)} >
                                 <View style={styles.actionContainer}>
                                     <Text style={styles.actionText}>❌</Text>
                                 </View>
@@ -86,11 +91,13 @@ export default class ToDo extends Component {
     }
 
     _toggleComplete = () => {
-        this.setState(prevState => {
-            return {
-                isCompleted: !prevState.isCompleted
-            };
-        })
+        const { isCompleted, uncompleteTodo, completeTodo, id } = this.props;
+        console.log(isCompleted);
+        if (isCompleted) {
+            uncompleteTodo(id);
+        } else {
+            completeTodo(id);
+        }
     }
 
     _startEditing = () => {
@@ -100,6 +107,9 @@ export default class ToDo extends Component {
     }
 
     _finishEditing = () => {
+        const { toDoValue } = this.state;
+        const { id, updateTodo } = this.props;
+        updateTodo(id, toDoValue);
         this.setState({
             isEditing: false
         })
@@ -110,6 +120,10 @@ export default class ToDo extends Component {
             toDoValue: text
         })
     }
+
+
+
+
 }
 
 const styles = StyleSheet.create({
